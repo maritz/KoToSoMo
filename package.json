@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node dist/index.js",
     "start-dev": "babel-watch src/index.js",
-    "build": "babel src/index.js",
+    "build": "babel -o dist/index.js src/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Moritz Peters",
@@ -18,5 +18,9 @@
     "babel-preset-node6": "^11.0.0",
     "babel-watch": "^2.0.2",
     "typescript": "^1.8.10"
+  },
+  "dependencies": {
+    "request-promise": "^3.0.0",
+    "xbmc": "^0.7.0"
   }
 }

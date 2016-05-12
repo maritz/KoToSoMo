@@ -1,8 +1,6 @@
-var test = "test";
+import * as request from "request-promise";
+import * as xbmc from "xbmc";
 
-async function testFunc() {
-  await setTimeout(() => console.log(test), 100);
-  test = "soidngdifuapnhdifh";
-}
+var config = require("../api_options.json");
 
-testFunc();
+console.log(config);

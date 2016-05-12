@@ -1,0 +1,13 @@
+{
+  "kodi": {
+    "host": "",
+    "port": 123,
+    "api_key": ""
+  },
+
+  "sonarr": {
+    "host": "",
+    "port": 123,
+    "api_key": ""
+  }
+}
