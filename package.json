@@ -2,10 +2,21 @@
   "name": "kotosomo",
   "version": "1.0.0",
   "description": "Kodi to Sonarr monitored status",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
+    "start": "node dist/index.js",
+    "start-dev": "babel-watch src/index.js",
+    "build": "babel src/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Moritz Peters",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "babel-cli": "^6.8.0",
+    "babel-plugin-syntax-async-functions": "^6.8.0",
+    "babel-plugin-transform-async-to-generator": "^6.8.0",
+    "babel-preset-node6": "^11.0.0",
+    "babel-watch": "^2.0.2",
+    "typescript": "^1.8.10"
+  }
 }
