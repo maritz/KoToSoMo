@@ -15,14 +15,14 @@ kodi.connect();
 kodi.api.on('notification:update', async (data) => {
   console.log('notification:onasdfsdgsghUpdate', data.params.data);
   if (data.params.data && data.params.data.playcount > 0) {
-    kodi.getShowIMDBIdFromEpisodeId(data.params.data.item.id, (episode) => {
+    kodi.getShowTVDBIdFromEpisodeId(data.params.data.item.id, (episode) => {
       console.log('Episode Info: ', episode);
     });
   }
 });
 
 const test = async () => {
-  kodi.getShowIMDBIdFromEpisodeId(13, (imdb) => {
+  kodi.getShowTVDBIdFromEpisodeId(13, (err, imdb) => {
     console.log('show for episode 13:', imdb);
   });
 };

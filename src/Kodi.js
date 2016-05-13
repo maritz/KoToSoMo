@@ -1,17 +1,13 @@
 import * as xbmc from 'xbmc';
 
-import EventEmitter from 'events';
-
 const config = require('../api_options.json');
 
 const incr_backoff_factor = config.kodi.incremental_backoff_factor || 1.5;
 const incr_backoff_max = config.kodi.incremental_backoff_max || 60000;
 
-
-class Kodi extends EventEmitter {
+class Kodi {
 
   constructor() {
-    super();
     this.api = new xbmc.XbmcApi();
     this.incr_backoff = 5000;
 
@@ -96,7 +92,7 @@ class Kodi extends EventEmitter {
       if (--count <= 0) {
         done_called = true;
         if (typeof cb === 'function') {
-          cb(this.shows);
+          cb(null, this.shows);
         }
       }
     }
@@ -105,20 +101,22 @@ class Kodi extends EventEmitter {
       count = shows.length;
       shows.forEach((show) => {
         this.api.media.tvshow(show.tvshowid, {properties: ['imdbnumber']}, (details) => {
-          this.shows[show.label] = {
-            imdb: parseInt(details.imdbnumber, 10),
-            id: show.tvshowid
-          };
+          this.shows[show.label] = details;
           done();
         });
       });
     });
   }
 
-  getShowIMDBIdFromEpisodeId(episodeid, cb) {
+
+  getShowFromEpisodeId(episodeid, cb) {
     this.api.media.episode(episodeid, null, (episode) => {
       const done = () => {
-        cb(this.shows[episode.showtitle].imdb);
+        if (this.shows[episode.showtitle]) {
+          cb(null, this.shows[episode.showtitle]);
+        } else {
+          cb(new Error(`No show found for the id "${episodeid}".`));
+        }
       }
       if (this.shows[episode.showtitle]) {
         done();
@@ -126,7 +124,13 @@ class Kodi extends EventEmitter {
         this.getShows(done);
       }
     });
+  }
 
+  // for some reason it's called imdb number in kodi even though it most definitely is the tvdb id, at least for tv shows
+  getShowTVDBIdFromEpisodeId(episodeid, cb) {
+    this.getShowFromEpisodeId(episodeid, (err, show) => {
+      cb(null, show.imdbnumber)
+    });
   }
 
 }
