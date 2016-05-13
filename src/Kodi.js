@@ -15,9 +15,12 @@ class Kodi extends EventEmitter {
     this.api = new xbmc.XbmcApi();
     this.incr_backoff = 5000;
 
+    this.shows = {};
+
     this.api.on('connection:open', () => {
       this.incr_backoff = 5000;
       console.log('Kodi: Connected.');
+      this.getShows();
     });
 
     this.api.on('connection:close', () => {
@@ -33,7 +36,6 @@ class Kodi extends EventEmitter {
     this.api.on('notification:play', () => console.log('notification:onPlay'));
     this.api.on('notification:pause', () => console.log('notification:onPause'));
     this.api.on('notification:add', () => console.log('notification:onPause'));
-    this.api.on('notification:update', (data) => console.log('notification:onUpdate', data.params.data));
     this.api.on('notification:clear', () => console.log('notification:onPause'));
     this.api.on('notification:scanstarted', () => console.log('notification:onPause'));
     this.api.on('notification:scanfinished', () => console.log('notification:onPause'));
@@ -42,7 +44,6 @@ class Kodi extends EventEmitter {
   }
 
   connect() {
-
     const connection = new xbmc.TCPConnection({
       host: config.kodi.host,
       port: config.kodi.port,
@@ -71,7 +72,6 @@ class Kodi extends EventEmitter {
         this.handleDisconnect();
       }
     });
-
   }
 
   handleDisconnect() {
@@ -83,6 +83,50 @@ class Kodi extends EventEmitter {
     if (this.incr_backoff > incr_backoff_max) {
       this.incr_backoff = incr_backoff_max;
     }
+  }
+
+  getShows(cb) {
+    let count;
+    let done_called = false;
+    const done = () => {
+      if (done_called) {
+        return;
+      }
+
+      if (--count <= 0) {
+        done_called = true;
+        if (typeof cb === 'function') {
+          cb(this.shows);
+        }
+      }
+    }
+    this.api.media.tvshows(null, (shows) => {
+      this.shows = {};
+      count = shows.length;
+      shows.forEach((show) => {
+        this.api.media.tvshow(show.tvshowid, {properties: ['imdbnumber']}, (details) => {
+          this.shows[show.label] = {
+            imdb: parseInt(details.imdbnumber, 10),
+            id: show.tvshowid
+          };
+          done();
+        });
+      });
+    });
+  }
+
+  getShowIMDBIdFromEpisodeId(episodeid, cb) {
+    this.api.media.episode(episodeid, null, (episode) => {
+      const done = () => {
+        cb(this.shows[episode.showtitle].imdb);
+      }
+      if (this.shows[episode.showtitle]) {
+        done();
+      } else {
+        this.getShows(done);
+      }
+    });
+
   }
 
 }
