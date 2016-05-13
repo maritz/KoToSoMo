@@ -20,6 +20,8 @@
     "typescript": "^1.8.10"
   },
   "dependencies": {
+    "bunyan": "^1.8.1",
+    "debug": "^2.2.0",
     "request-promise": "^3.0.0",
     "xbmc": "^0.7.0"
   }
